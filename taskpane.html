@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Email Evaluator</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+  <link rel="stylesheet" href="taskpane.css"/>
+</head>
+<body>
+  <div id="app">
+
+    <!-- Header -->
+    <header>
+      <span class="logo">🛡️</span>
+      <span class="title">Email Evaluator</span>
+      <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
+    </header>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="panel hidden">
+      <div class="settings-header">
+        <h3>Settings</h3>
+        <button id="settings-close-btn" class="icon-btn">✕</button>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="proxy-url-input">Supabase Proxy URL</label>
+        <input type="url" id="proxy-url-input" class="field-input"
+               placeholder="https://xxx.supabase.co/functions/v1/analyze-email"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+        <span class="field-hint">Your Supabase edge function URL</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="ext-token-input">Extension Token</label>
+        <input type="password" id="ext-token-input" class="field-input"
+               placeholder="Your extension token"/>
+        <span class="field-hint">Must match the token set in your Supabase function</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="tenant-domain-input">Organization Domain</label>
+        <input type="text" id="tenant-domain-input" class="field-input"
+               placeholder="yourcompany.com"
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+        <span class="field-hint">Used to detect external senders</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="custom-prompt-input">Additional Instructions</label>
+        <textarea id="custom-prompt-input" class="field-input" rows="3"
+                  placeholder="e.g. We never send password reset emails internally."></textarea>
+        <span class="field-hint">Extra context given to the AI on every analysis</span>
+      </div>
+
+      <button id="save-settings-btn" class="btn-primary">Save Settings</button>
+      <div id="settings-msg" class="msg hidden">✓ Saved!</div>
+    </div>
+
+    <!-- Main Panel -->
+    <div id="main-panel">
+      <div id="email-meta">
+        <div id="email-subject" class="email-subject">Loading email...</div>
+        <div id="email-sender" class="email-sender"></div>
+      </div>
+
+      <div id="result-body">
+        <div class="placeholder">
+          <div class="placeholder-icon">🔍</div>
+          <div class="placeholder-text">Tap <strong>Analyze Email</strong> to check this email for threats</div>
+        </div>
+      </div>
+
+      <div class="analyze-bar">
+        <button id="analyze-btn" class="btn-analyze">🔍 Analyze Email</button>
+      </div>
+    </div>
+
+  </div>
+  <script src="taskpane.js"></script>
+</body>
+</html>
