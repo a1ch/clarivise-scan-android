@@ -79,6 +79,7 @@ function populateSettings() {
   document.getElementById('ext-token-input').value    = storageGet('extToken') || '';
   document.getElementById('tenant-domain-input').value = storageGet('tenantDomain') || '';
   document.getElementById('custom-prompt-input').value = storageGet('customPrompt') || '';
+  var _itEl = document.getElementById('it-security-input'); if (_itEl) _itEl.value = storageGet('itSecurityEmail') || '';
 }
 
 function saveSettings() {
@@ -86,6 +87,7 @@ function saveSettings() {
   storageSet('extToken',     (document.getElementById('ext-token-input').value || '').trim());
   storageSet('tenantDomain', (document.getElementById('tenant-domain-input').value || '').trim());
   storageSet('customPrompt', (document.getElementById('custom-prompt-input').value || '').trim());
+  var _itSave = document.getElementById('it-security-input'); if (_itSave) storageSet('itSecurityEmail', (_itSave.value || '').trim());
   const msg = document.getElementById('settings-msg');
   msg.classList.remove('hidden');
   setTimeout(() => msg.classList.add('hidden'), 2000);
@@ -216,6 +218,12 @@ async function analyzeEmail() {
     }
   } catch(e) {}
 
+  const _dn = (item.from && item.from.displayName) ? item.from.displayName : '';
+  const _se = (item.from && item.from.emailAddress) ? item.from.emailAddress : '';
+  const _seDomain = (_se.split('@')[1] || '').toLowerCase();
+  const _brands = ['microsoft','google','apple','amazon','paypal','netflix','interac','wealthsimple','dropbox','docusign','linkedin'];
+  const _dnLower = _dn.toLowerCase();
+  const _dnMismatch = !!_brands.find(b => _dnLower.includes(b) && _seDomain && !_seDomain.includes(b));
   const emailData = {
     subject, sender,
     senderHasEmail: sender.includes('@'),
@@ -223,7 +231,8 @@ async function analyzeEmail() {
     links, attachments: attachNames,
     isOutlookExternal,
     clientTimestamp: new Date().toISOString(),
-    clientTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    clientTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    displayName: _dn, senderEmail: _se, displayNameMismatch: _dnMismatch
   };
 
   try {
@@ -359,6 +368,23 @@ function showResult(result, { subject, links }) {
 
   document.getElementById('fb-fp').addEventListener('click', () => showFeedbackForm('false_positive', result));
   document.getElementById('fb-mt').addEventListener('click', () => showFeedbackForm('missed_threat',  result));
+  var _itSec = (result.itSecurityEmail || storageGet('itSecurityEmail') || '').trim();
+  var _rb = document.getElementById('result-body');
+  if (_rb) {
+    var _wrap = document.createElement('div');
+    _wrap.className = 'section';
+    _wrap.innerHTML = '<div class="section-title">🛡️ Send to Security for Review</div>' +
+      (_itSec ? '<button class="btn-primary" id="oe-report-it-btn" style="width:100%;">📨 Send to Security for Review</button>' : '<p style="font-size:12px;opacity:.75;">Set an IT Security email in Settings to enable this.</p>');
+    _rb.appendChild(_wrap);
+    var _rbtn = document.getElementById('oe-report-it-btn');
+    if (_rbtn && _itSec) {
+      _rbtn.addEventListener('click', function () {
+        var subj = '[Security Report] ' + (result.verdict || '') + ': ' + ((typeof subject !== 'undefined' ? subject : '') || '(no subject)').slice(0, 80);
+        var lines = ['I am forwarding this email for your review.', '', 'Verdict: ' + (result.verdict || ''), 'Phishing score: ' + (result.phishing_score || 0) + '/100', 'Summary: ' + (result.summary || '')];
+        window.open('mailto:' + encodeURIComponent(_itSec) + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(lines.join('\n')), '_blank');
+      });
+    }
+  }
 }
 
 /* ── Feedback ──────────────────────────────────────────────── */
