@@ -1,4 +1,4 @@
-# Outlook Email Evaluator — Android/Mobile Add-in
+# Clarivise Scan — Android/Mobile Add-in
 
 AI-powered phishing and spam detection for **Outlook on Android** (and iOS).
 

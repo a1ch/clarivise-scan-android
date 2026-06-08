@@ -1,4 +1,4 @@
-/* Outlook Email Evaluator — Android/Mobile Add-in (taskpane.js) v1.0
+/* Clarivise Scan — Android/Mobile Add-in (taskpane.js) v1.0
    Built on top of the desktop add-in logic.
    Key differences vs desktop:
    - No DOM scraping (Office.js API only — works in mobile task pane)
